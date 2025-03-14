@@ -4,38 +4,27 @@
 // fgPos is the position of the foreground image in pixels. It can be negative and (0,0) means the top-left pixels of the foreground and background are aligned.
 function composite( bgImg, fgImg, fgOpac, fgPos )
 {
-    const BW = bgImg.width;
-    const BH = bgImg.height;
-    const FW = fgImg.width;
-    const FH = fgImg.height;
-    const xOffset = fgPos.x;
-    const yOffset = fgPos.y;
-    const startH = Math.max(0, yOffset);
-    const startW = Math.max(0, xOffset);
-    const endH = Math.min(BW, yOffset+FH);
-    const endW = Math.min(BW, xOffset+FW);
-    
-    console.log("Background: ", BW, BH, bgImg.data);
-    console.log("Foreground: ", FW, FH, fgImg.data);
-    console.log("W: ", startW, endW, endW-startW, "H: ", startH, endH, endH-startH);
-    console.log(fgPos);
-    console.log(fgOpac);
+    const bgWidth = bgImg.width;
+    const bgHeight = bgImg.height;
+    const fgWidth = fgImg.width;
+    const fgHeight = fgImg.height;
+    const wOffset = fgPos.x;
+    const hOffset = fgPos.y;
 
-    for (let w = 0;w<FW;w++){
-        for(let h=0;h<FH;h++){
-            let wPossInB = w+xOffset;
-            let hPossInB = h+yOffset;
-            const alphaf = fgImg.data[3 + w*4 + h*4*FW]*fgOpac/255;
-            const alphab = bgImg.data[3 + w*4 + h*4*BW]/255;
+    for (let w = 0;w<fgWidth;w++){
+        for(let h=0;h<fgHeight;h++){
+            const fgAlpha = fgImg.data[3 + w*4 + h*4*fgWidth]*fgOpac/255;
+            const wPossInB = w+wOffset;
+            const hPossInB = h+hOffset;
             let filled = false
-            if(wPossInB<0 || wPossInB>=BW || hPossInB<0 || hPossInB>=BH) continue;
+            if(wPossInB<0 || wPossInB>=bgWidth || hPossInB<0 || hPossInB>=bgHeight) continue;
             for(let ch=0;ch<3;ch++){
-                const valueFg = fgImg.data[ch + w*4 + h*4*FW];          
-                const valueBg = bgImg.data[ch + wPossInB*4 + hPossInB*4*BW];
-                bgImg.data[ch + wPossInB*4 + hPossInB*4*BW] = valueFg*alphaf + valueBg*(1-alphaf);
-                filled = bgImg.data[ch + wPossInB*4 + hPossInB*4*BW] != 0
+                const fgValue = fgImg.data[ch + w*4 + h*4*fgWidth];          
+                const bgValue = bgImg.data[ch + wPossInB*4 + hPossInB*4*bgWidth];
+                bgImg.data[ch + wPossInB*4 + hPossInB*4*bgWidth] = fgValue*fgAlpha + bgValue*(1-fgAlpha);
+                filled = bgImg.data[ch + wPossInB*4 + hPossInB*4*bgWidth] != 0
             }
-            if (filled) bgImg.data[3 + wPossInB*4 + hPossInB*4*BW] = 255;
+            if (filled) bgImg.data[3 + wPossInB*4 + hPossInB*4*bgWidth] = 255;
         }
     }
 }
