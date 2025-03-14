@@ -27,14 +27,15 @@ function composite( bgImg, fgImg, fgOpac, fgPos )
             let hPossInB = h+yOffset;
             const alphaf = fgImg.data[3 + w*4 + h*4*FW]*fgOpac/255;
             const alphab = bgImg.data[3 + w*4 + h*4*BW]/255;
-            const alphac = alphaf + (1-alphaf)*alphab;
+            let filled = false
             if(wPossInB<0 || wPossInB>=BW || hPossInB<0 || hPossInB>=BH) continue;
             for(let ch=0;ch<3;ch++){
                 const valueFg = fgImg.data[ch + w*4 + h*4*FW];          
                 const valueBg = bgImg.data[ch + wPossInB*4 + hPossInB*4*BW];
-                bgImg.data[ch + wPossInB*4 + hPossInB*4*BW] = (valueFg*alphaf + valueBg*(1-(alphaf))*alphab)/alphac;
+                bgImg.data[ch + wPossInB*4 + hPossInB*4*BW] = valueFg*alphaf + valueBg*(1-alphaf);
+                filled = bgImg.data[ch + wPossInB*4 + hPossInB*4*BW] != 0
             }
-            bgImg.data[3 + wPossInB*4 + hPossInB*4*BW] = alphac * 255;
+            if (filled) bgImg.data[3 + wPossInB*4 + hPossInB*4*BW] = 255;
         }
     }
 }
